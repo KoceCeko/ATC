@@ -7,9 +7,9 @@ package model.aircraft;
 
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public interface Transport {
     
-    protected Boolean isScanning;
+    
 }

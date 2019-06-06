@@ -7,9 +7,8 @@ package model.aircraft;
 
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public interface FireFight {
     
-    protected Boolean isScanning;
 }

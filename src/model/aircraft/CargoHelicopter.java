@@ -5,11 +5,16 @@
  */
 package model.aircraft;
 
+import java.util.ArrayList;
+import model.person.Cargo;
+
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public class CargoHelicopter extends Helicopter implements Carrier{
     
-    protected Boolean isScanning;
+    protected ArrayList<Cargo> cargo;
+    
+    protected Integer maxCargoWeight;
 }

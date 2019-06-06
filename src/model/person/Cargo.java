@@ -3,13 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.aircraft;
+package model.person;
 
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public class Cargo {
     
-    protected Boolean isScanning;
 }

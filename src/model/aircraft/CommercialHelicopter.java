@@ -7,9 +7,9 @@ package model.aircraft;
 
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public class CommercialHelicopter extends Helicopter implements Commercial{
     
-    protected Boolean isScanning;
+    protected Integer numberOfSeats;
 }

@@ -7,9 +7,12 @@ package model.aircraft;
 
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public class AirTanker extends Aircraft implements FireFight{
     
-    protected Boolean isScanning;
+    public Boolean isFirefighting = false;
+    
+    public Integer waterCapacity = 0;
+    
 }

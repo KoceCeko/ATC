@@ -11,4 +11,7 @@ package model.aircraft;
  */
 public class MilitaryAircraft {
     
+    protected Boolean hasWeapon;
+    
+    protected Boolean isTargeting;
 }

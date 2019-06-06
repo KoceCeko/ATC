@@ -3,13 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package model.aircraft;
+package model.rocket;
 
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public class AntiFRRocket extends Rocket{
     
-    protected Boolean isScanning;
 }

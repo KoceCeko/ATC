@@ -7,9 +7,11 @@ package model.aircraft;
 
 /**
  *
- * @author cekov
+ * @author Ceko
  */
-public class PilotlessPlane extends  Aircraft{
+public class AirHunter extends MilitaryAircraft{
     
-    protected Boolean isScanning;
+    protected Boolean isTargetingGround;
+    
+    protected Boolean isTargetFlight;
 }

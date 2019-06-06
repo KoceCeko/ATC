@@ -11,4 +11,9 @@ package model.rocket;
  */
 public class Rocket {
     
+    protected Integer maxReach;
+    
+    protected Integer maxHeight;
+    
+    protected Integer maxSpeed;
 }
