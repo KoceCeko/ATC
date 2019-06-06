@@ -1,3 +1,11 @@
 dist/
 build/
 nbproject/
+
+
+#####################
+*.com
+*.class
+*.dll
+*.exe
+*.properties
