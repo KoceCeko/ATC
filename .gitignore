@@ -5,7 +5,7 @@ nbproject/
 
 #####################
 **/*.com
-*.class
+**/*.class
 *.dll
 *.exe
-*.properties
+**/*.properties
