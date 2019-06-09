@@ -4,7 +4,7 @@ nbproject/
 
 
 #####################
-*.com
+**/*.com
 *.class
 *.dll
 *.exe
