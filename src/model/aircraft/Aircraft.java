@@ -14,7 +14,7 @@ import model.person.Value;
  *
  * @author cekov
  */
-public class Aircraft {
+public abstract class Aircraft {
     
     protected String modelName;
     
