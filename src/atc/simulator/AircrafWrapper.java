@@ -6,14 +6,58 @@
 package atc.simulator;
 
 import model.aircraft.Aircraft;
+import atc.util.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Ceko
  */
-public class AircrafWrapper {
+public class AircrafWrapper extends Thread{
     
     protected Aircraft aircraft;
     
+    protected Simulator simulator;
     
+    protected Field field;
+    
+    public AircrafWrapper(Simulator simulator){
+        aircraft = new Aircraft();
+        this.simulator = simulator;
+        field = simulator.getStartingField();
+        System.out.println("field created: "+field.toString());
+        System.out.println("created wrapper");
+    }
+    
+    
+    @Override
+    public void run(){
+        
+        System.out.println("started wrapper");
+        Integer i =0;
+        
+        for (i =0; i<3; i++){
+            move();
+            try {
+                sleep(1250);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(AircrafWrapper.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public Aircraft getAircraft(){
+        return aircraft;
+    }   
+    
+    public Field getField() {
+        
+        return field;
+    }
+
+    private void move() {
+        field = simulator.getNextFiled(this);
+        System.out.println("moved to: "+field.toString());
+    }
 }
