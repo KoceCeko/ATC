@@ -5,6 +5,7 @@
  */
 package atc;
 
+import atc.simulator.Simulator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -30,6 +31,10 @@ public class ATC extends Application {
         Scene scene = new Scene(root);
         startingStage.setScene(scene);
         startingStage.show();
+        
+        Simulator simulator = new Simulator();
+        simulator.start();
+        
     }
     
 }

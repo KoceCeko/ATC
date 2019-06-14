@@ -5,7 +5,10 @@
  */
 package atc.util;
 
+import atc.simulator.AircrafWrapper;
+import java.util.HashMap;
 import java.util.HashSet;
+import javafx.util.Pair;
 
 /**
  *
@@ -56,9 +59,19 @@ public class SimulatorMatrix {
         
         for(int i=0; i < xSize; i++){
             for (int j=0 ; j< ySize; j++){
-                map.add(new Field(i,j));
+                map.add(new Field(i, j));
             }
         }
+        System.out.println("finished creating fields");
+    }
+
+    public HashSet<Field> getMap() {
+        return map;
     }
     
+    public Field getNextField(AircrafWrapper wrapper){
+        Field nextPosition = new Field(wrapper.getField().getX(), wrapper.getAircraft().getSpeed()+wrapper.getField().getY());
+        Field f = map.stream().parallel().filter(e -> e.equals(nextPosition)).findFirst().get();
+        return f;
+    }
 }

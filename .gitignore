@@ -2,10 +2,9 @@ dist/
 build/
 nbproject/
 
-
+\build
 #####################
-*.com
-*.class
+.class
 *.dll
 *.exe
-*.properties
+**/*.properties

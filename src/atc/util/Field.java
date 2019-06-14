@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author Ceko
  */
-class Field {
+public class Field {
     
     private Integer x;
     
@@ -48,9 +48,6 @@ class Field {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
         if (obj == null) {
             return false;
         }
@@ -58,8 +55,18 @@ class Field {
             return false;
         }
         final Field other = (Field) obj;
+        if (!Objects.equals(this.x, other.x)) {
+            return false;
+        }
+        if (!Objects.equals(this.y, other.y)) {
+            return false;
+        }
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Field{" + "x= " + x + ", y= " + y + '}';
+    }
     
 }
