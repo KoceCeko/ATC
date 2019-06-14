@@ -35,7 +35,7 @@ public class ATC extends Application {
         Simulator simulator = new Simulator();
         simulator.start();
         
-        System.out.println("test");
+        System.out.println("testic");
         
     }
     
