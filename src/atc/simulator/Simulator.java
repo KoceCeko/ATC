@@ -8,6 +8,8 @@ package atc.simulator;
 import atc.util.Field;
 import atc.util.SimulatorMatrix;
 import atc.util.SimulatorUtil;
+import java.util.HashSet;
+import model.aircraft.AirHunter;
 
 /**
  *
@@ -15,35 +17,47 @@ import atc.util.SimulatorUtil;
  */
 public class Simulator extends Thread {
     
-    //SIZE OF MATRIX SIZE*SIZE
-    public static int size = 10;
     
-    public static int i = 0;
+    private Configuration config;
     
     private SimulatorMatrix matrix; 
     
+    private HashSet<AircrafWrapper> aircrafts;
+    
     public Simulator(){
-        matrix = new SimulatorMatrix(size,size);
+        config = SimulatorUtil.readConfiguration();
+        
+        matrix = new SimulatorMatrix(config.size,config.size,this);
         System.out.println("created simulation");
+        aircrafts = new HashSet<>();
         setDaemon(true);
     }
     
     @Override
     public void run(){
         System.out.println("started simulation");
-        AircrafWrapper aircraft = new AircrafWrapper(this);
-        aircraft.start();
-        while(i < 100){
-            
-            
-            Integer sleepSec = SimulatorUtil.random.nextInt(5);
-            i+= sleepSec;
-            
-            try{
-                Thread.sleep(sleepSec*1000);
-            }catch(InterruptedException ex){
-                
-                System.out.println("runtime error at sleep random between 1 and 5");
+        int i = 0;
+        boolean alreadyEntered = false;
+        while(true){
+            config = SimulatorUtil.readConfiguration();
+            if(config.hasForeignAircraft && !alreadyEntered){
+                System.err.println("foregin aircraft entered!");
+                AircrafWrapper aircraft = new AircrafWrapper(this,config.hasForeignAircraft);
+                changeCourseOfFlights();
+                aircraft.start();
+                alreadyEntered = true;
+            }else{
+                if (i++ < config.numerOfMaxAC && !alreadyEntered){
+                    System.out.println("adding aircraft");
+                    AircrafWrapper aircraft = new AircrafWrapper(this);
+                    aircraft.start();
+                    aircrafts.add(aircraft);
+                }
+                try{
+                    Thread.sleep(config.creationTime*1000);
+                }catch(InterruptedException ex){
+                    System.out.println("simulator sleeps");
+                }
             }
         }
     }
@@ -56,8 +70,6 @@ public class Simulator extends Thread {
             
             return matrix.getNextField(aircrafWrapper);
         }
-        
-        
         return null;
         
     }
@@ -88,5 +100,20 @@ public class Simulator extends Thread {
         Field f = matrix.getMap().stream().parallel().filter(e -> e.equals(new Field(x1, y1))).findFirst().get();
         System.out.println("starting Field: "+f.toString());
         return f;
+    }
+
+    public synchronized void planesColided(AircrafWrapper aircraft) {
+        System.out.println("Colision detected at: "+aircraft.getField().toString());
+        aircrafts.stream().forEach(ac -> ac.finish());
+
+    }
+
+    public Configuration getConfig() {
+        return config;
+    }
+
+    private void changeCourseOfFlights() {
+        aircrafts.stream().forEach(e -> e.findClosestExit());
+        
     }
 }

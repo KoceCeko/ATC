@@ -5,6 +5,8 @@
  */
 package atc.util;
 
+import atc.simulator.AircrafWrapper;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -16,10 +18,13 @@ public class Field {
     private Integer x;
     
     private Integer y;
+    
+    private HashSet<AircrafWrapper> aircrafts;
 
     public Field(Integer x, Integer y) {
         this.x = x;
         this.y = y;
+        aircrafts = new HashSet<>();
     }
 
     public Integer getX() {
@@ -67,6 +72,17 @@ public class Field {
     @Override
     public String toString() {
         return "Field{" + "x= " + x + ", y= " + y + '}';
+    }
+
+    public void removeAircraft(AircrafWrapper oldAircraft) {
+        aircrafts.remove(oldAircraft);
+    }
+
+    public boolean addAircraft(AircrafWrapper newAircraft) {
+        if (aircrafts.stream().anyMatch(e -> e.getAircraft().getHeight().equals(newAircraft.getAircraft().getHeight())))
+            return true;
+        aircrafts.add(newAircraft);
+        return false;
     }
     
 }

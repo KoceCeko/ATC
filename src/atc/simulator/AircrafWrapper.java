@@ -10,6 +10,7 @@ import atc.util.Field;
 import atc.util.SimulatorUtil;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.aircraft.AirHunter;
 import model.aircraft.AirTanker;
 import model.aircraft.Airplane;
 import model.aircraft.CargoHelicopter;
@@ -30,7 +31,6 @@ public class AircrafWrapper extends Thread{
     protected Simulator simulator;
     
     protected Field field;
-
     
     public enum Direction{
         NORTH,
@@ -47,34 +47,30 @@ public class AircrafWrapper extends Thread{
         aircraft = generateAircraft();
         this.simulator = simulator;
         finished = false;
-        Integer i = SimulatorUtil.random.nextInt(4);
-        System.out.println("direction random: "+i.toString());
-        switch(i){
-            case 0:
-                direction = Direction.NORTH;
-                break;
-            case 1:
-                direction = Direction.SOUTH;
-                break;
-            case 2:
-                direction = Direction.EAST;
-                break;
-            case 3:
-                direction = Direction.WEST;
-                break;
-        }
-        System.out.println("direction: "+direction.toString());
+        direction = generateDirection();
+      
+
+        System.out.println("direction: "+direction.toString()+" id: "+getId());
         field = simulator.getStartingField(direction);
     }
     
+    AircrafWrapper(Simulator simulator, boolean hasForeignAircraft) {
+        if (hasForeignAircraft)
+            aircraft = generateMilitaryAircraft();
+        else
+            aircraft = generateAircraft();
+        this.simulator = simulator;
+        finished = false;
+        direction = generateDirection();
+    }
+        
     
     @Override
     public void run(){
         
-        System.out.println("started wrapper");
         Integer i =0;
         
-        for (i =0; i<9; i++){
+        while(!finished){
             move();
             try {
                 sleep(1250);
@@ -100,14 +96,20 @@ public class AircrafWrapper extends Thread{
 
     
     
-    private void move() {
-        field = simulator.getNextFiled(this);
-        if (field != null)
-            System.out.println("moved to: "+field.toString());
-        else{
+    private synchronized void move() {
+        if (field != null){
+            field.removeAircraft(this);
+            field = simulator.getNextFiled(this);
+            if (field!=null){
+                if (field.addAircraft(this))
+                    simulator.planesColided(this);
+                System.out.println("moved to: "+field.toString());
+            }else
+                finished = true;
+        }else{
             finished = true;
-            System.err.println("finished");
         }
+        
     }
     
     private Aircraft generateAircraft() {
@@ -138,9 +140,56 @@ public class AircrafWrapper extends Thread{
                 generated = new FireHelicopter();
                 break;
         }
-        
-        
         return  new CommercialAirplane();
+    }
+    
+    private Aircraft generateMilitaryAircraft() {
+      return new AirHunter();
+    }
+    
+    
+    void finish() {
+        finished = true;
+    }
+    
+        private Direction generateDirection() {
+        Direction direction = Direction.EAST;
+        Integer i = SimulatorUtil.random.nextInt(4);
+        switch(i){
+            case 0:
+                direction = Direction.NORTH;
+                break;
+            case 1:
+                direction = Direction.SOUTH;
+                break;
+            case 2:
+                direction = Direction.EAST;
+                break;
+            case 3:
+                direction = Direction.WEST;
+                break;
+        }
+        return direction;
+    }
+        
+    void findClosestExit() {
+        
+        if(field == null)
+            return;
+        
+        Integer toNorth = simulator.getConfig().size - field.getY();
+        Integer toSouth = simulator.getConfig().size - field.getY();
+        Integer toEast = simulator.getConfig().size - field.getY();
+        Integer toWest = simulator.getConfig().size - field.getY();
+        
+        if((toNorth >= toSouth) && (toNorth >= toEast) && (toNorth >= toWest))
+            direction = Direction.NORTH;
+        else if((toSouth > toNorth) && (toSouth >= toEast) && (toSouth >= toWest))
+            direction = Direction.SOUTH;
+        else if((toEast > toNorth) && (toEast > toSouth) && (toEast >= toWest))
+            direction = Direction.EAST;
+        else
+            direction = Direction.WEST;
         
     }
 }

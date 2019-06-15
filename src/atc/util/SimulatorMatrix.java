@@ -6,6 +6,7 @@
 package atc.util;
 
 import atc.simulator.AircrafWrapper;
+import atc.simulator.Simulator;
 import java.util.HashMap;
 import java.util.HashSet;
 import javafx.util.Pair;
@@ -21,6 +22,8 @@ public class SimulatorMatrix {
     private Integer ySize;
     
     private HashSet<Field> map;
+    
+    private Simulator simulator;
 
     public SimulatorMatrix() {
         xSize = 5;
@@ -29,10 +32,10 @@ public class SimulatorMatrix {
         initFields();
     }
     
-    public SimulatorMatrix(Integer xSize,Integer ySize){
+    public SimulatorMatrix(Integer xSize,Integer ySize,Simulator simulator){
         this.xSize = xSize;
         this.ySize = ySize;
-        
+        this.simulator = simulator;
         initFields();
       
     }
@@ -93,13 +96,17 @@ public class SimulatorMatrix {
                 break;
         }
         
+        System.out.println("size: "+simulator.getConfig().size.toString());
+        if ((nextX >= simulator.getConfig().size || nextX < 0 )|| (nextY >= simulator.getConfig().size || nextY < 0 ))
+            return null;
+        
         Field nextPosition = new Field(nextX, nextY);
         Field f = null;
         try {
             f = map.stream().parallel().filter(e -> e.equals(nextPosition)).findFirst().get();
             
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("couldn't find a field for: "+nextPosition.toString());
         }
         return f;
     }
