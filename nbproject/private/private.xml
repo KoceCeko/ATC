@@ -10,9 +10,11 @@
             <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/model/aircraft/Helicopter.java</file>
             <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/model/FlyingObject.java</file>
             <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/atc/flightRadar/flightRadar.fxml</file>
+            <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/model/aircraft/Bomber.java</file>
             <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/atc/flightRadar/FlightRadarController.java</file>
             <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/model/aircraft/PilotlessPlane.java</file>
             <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/model/aircraft/Aircraft.java</file>
+            <file>file:/C:/Users/cekov/OneDrive/Documents/NetBeansProjects/ATC/src/atc/simulator/SimulatorController.java</file>
         </group>
     </open-files>
 </project-private>
