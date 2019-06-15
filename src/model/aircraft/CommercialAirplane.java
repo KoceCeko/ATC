@@ -14,6 +14,4 @@ public class CommercialAirplane extends Airplane {
     protected Integer numberOfSeats;
     
     protected Integer maxLuggageWeight;
-    
-    
 }

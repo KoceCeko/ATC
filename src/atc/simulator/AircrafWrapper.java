@@ -9,8 +9,6 @@ import model.aircraft.Aircraft;
 import atc.util.Field;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import model.aircraft.Airplane;
-import model.aircraft.CommercialAirplane;
 
 /**
  *
@@ -25,7 +23,7 @@ public class AircrafWrapper extends Thread{
     protected Field field;
     
     public AircrafWrapper(Simulator simulator){
-        aircraft = new CommercialAirplane();
+        aircraft = new Aircraft();
         this.simulator = simulator;
         field = simulator.getStartingField();
         System.out.println("field created: "+field.toString());
