@@ -9,10 +9,14 @@ package model.aircraft;
  *
  * @author Ceko
  */
-public class AirTanker extends Aircraft implements FireFight{
+public class AirTanker extends Airplane implements FireFight{
     
     public Boolean isFirefighting = false;
     
     public Integer waterCapacity = 0;
+
+    public AirTanker() {
+    }
+    
     
 }

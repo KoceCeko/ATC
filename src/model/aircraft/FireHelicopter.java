@@ -5,20 +5,17 @@
  */
 package model.aircraft;
 
-import java.util.ArrayList;
-import model.person.Cargo;
-
 /**
  *
  * @author Ceko
  */
-public class CargoPlane extends Airplane implements Carrier{
+public class FireHelicopter extends Helicopter implements FireFight{
     
-    protected ArrayList<Cargo> cargo;
+    public Boolean isFirefighting = false;
     
-    protected Integer maxCargoWeight;
+    public Integer waterCapacity = 0;
 
-    public CargoPlane() {
+    public FireHelicopter() {
     }
     
     

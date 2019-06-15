@@ -9,11 +9,15 @@ package model.aircraft;
  *
  * @author Ceko
  */
-public class CommercialAirplane extends Airplane {
+public class CommercialAirplane extends Airplane implements Commercial{
     
     protected Integer numberOfSeats;
     
     protected Integer maxLuggageWeight;
+
+    public CommercialAirplane() {
+    }
+    
     
     
 }

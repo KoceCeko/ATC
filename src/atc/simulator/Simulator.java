@@ -8,7 +8,6 @@ package atc.simulator;
 import atc.util.Field;
 import atc.util.SimulatorMatrix;
 import atc.util.SimulatorUtil;
-import javafx.util.Pair;
 
 /**
  *
@@ -24,7 +23,7 @@ public class Simulator extends Thread {
     private SimulatorMatrix matrix; 
     
     public Simulator(){
-        matrix = new SimulatorMatrix(10,10);
+        matrix = new SimulatorMatrix(size,size);
         System.out.println("created simulation");
         setDaemon(true);
     }
@@ -36,8 +35,8 @@ public class Simulator extends Thread {
         aircraft.start();
         while(i < 100){
             
-            System.out.println("sleeping for random sec between 1 and 5");
-            Integer sleepSec = SimulatorUtil.random.nextInt(4);
+            
+            Integer sleepSec = SimulatorUtil.random.nextInt(5);
             i+= sleepSec;
             
             try{
@@ -63,8 +62,30 @@ public class Simulator extends Thread {
         
     }
 
-    Field getStartingField() {
-        Field f = matrix.getMap().stream().parallel().filter(e -> e.equals(new Field(1, 0))).findFirst().get();
+    Field getStartingField(AircrafWrapper.Direction direction) {
+        Integer x = 0;
+        Integer y = 0;
+        switch(direction){
+            case NORTH:
+                x = SimulatorUtil.random.nextInt(10);
+                y = 0;
+                break;
+            case SOUTH:
+                x = SimulatorUtil.random.nextInt(10);
+                y = 9;
+                break;
+            case EAST:
+                x = 0;
+                y = SimulatorUtil.random.nextInt(10);
+                break;
+            case WEST:
+                x = 9;
+                y = SimulatorUtil.random.nextInt(10);
+                break;
+        }
+        Integer x1 = x;
+        Integer y1 = y;
+        Field f = matrix.getMap().stream().parallel().filter(e -> e.equals(new Field(x1, y1))).findFirst().get();
         System.out.println("starting Field: "+f.toString());
         return f;
     }

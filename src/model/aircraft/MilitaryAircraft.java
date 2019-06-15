@@ -9,7 +9,7 @@ package model.aircraft;
  *
  * @author cekov
  */
-public class MilitaryAircraft {
+public class MilitaryAircraft extends Aircraft{
     
     protected Boolean hasWeapon;
     

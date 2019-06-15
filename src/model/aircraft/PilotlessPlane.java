@@ -12,4 +12,8 @@ package model.aircraft;
 public class PilotlessPlane extends  Aircraft{
     
     protected Boolean isScanning;
+
+    public PilotlessPlane() {
+    }
+    
 }

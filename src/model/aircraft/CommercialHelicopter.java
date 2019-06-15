@@ -12,4 +12,11 @@ package model.aircraft;
 public class CommercialHelicopter extends Helicopter implements Commercial{
     
     protected Integer numberOfSeats;
+
+    public CommercialHelicopter() {
+        super();
+        numberOfSeats = 100;
+    }
+    
+    
 }

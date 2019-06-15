@@ -14,4 +14,9 @@ public class AirHunter extends MilitaryAircraft{
     protected Boolean isTargetingGround;
     
     protected Boolean isTargetFlight;
+
+    public AirHunter() {
+    }
+    
+    
 }

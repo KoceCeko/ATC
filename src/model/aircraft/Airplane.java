@@ -9,6 +9,6 @@ package model.aircraft;
  *
  * @author cekov
  */
-public class Airplane extends Aircraft{
+public abstract class Airplane extends Aircraft{
     
 }

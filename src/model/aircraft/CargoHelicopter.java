@@ -17,4 +17,10 @@ public class CargoHelicopter extends Helicopter implements Carrier{
     protected ArrayList<Cargo> cargo;
     
     protected Integer maxCargoWeight;
+
+    public CargoHelicopter() {
+        
+    }
+    
+    
 }

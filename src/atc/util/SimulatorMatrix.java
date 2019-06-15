@@ -70,8 +70,37 @@ public class SimulatorMatrix {
     }
     
     public Field getNextField(AircrafWrapper wrapper){
-        Field nextPosition = new Field(wrapper.getField().getX(), wrapper.getAircraft().getSpeed()+wrapper.getField().getY());
-        Field f = map.stream().parallel().filter(e -> e.equals(nextPosition)).findFirst().get();
+        
+        Integer nextX = 0;
+        Integer nextY = 0;
+        
+        switch(wrapper.getDirection()){
+            case NORTH:
+                nextX = wrapper.getField().getX();
+                nextY = wrapper.getField().getY()+wrapper.getAircraft().getSpeed();
+                break;
+            case SOUTH:
+                nextX = wrapper.getField().getX();
+                nextY = wrapper.getField().getY() - wrapper.getAircraft().getSpeed();
+                break;
+            case EAST:
+                nextX = wrapper.getField().getX()+wrapper.getAircraft().getSpeed();
+                nextY = wrapper.getField().getY();
+                break;
+            case WEST:
+                nextX = wrapper.getField().getX()-wrapper.getAircraft().getSpeed();
+                nextY = wrapper.getField().getY();
+                break;
+        }
+        
+        Field nextPosition = new Field(nextX, nextY);
+        Field f = null;
+        try {
+            f = map.stream().parallel().filter(e -> e.equals(nextPosition)).findFirst().get();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return f;
     }
 }
