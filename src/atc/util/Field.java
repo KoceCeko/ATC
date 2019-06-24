@@ -6,6 +6,7 @@
 package atc.util;
 
 import atc.simulator.AircrafWrapper;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -13,13 +14,13 @@ import java.util.Objects;
  *
  * @author Ceko
  */
-public class Field {
+public class Field implements Serializable{
     
     private Integer x;
     
     private Integer y;
     
-    private HashSet<AircrafWrapper> aircrafts;
+    private transient HashSet<AircrafWrapper> aircrafts;
 
     public Field(Integer x, Integer y) {
         this.x = x;
@@ -84,5 +85,8 @@ public class Field {
         aircrafts.add(newAircraft);
         return false;
     }
-    
+
+    public HashSet<AircrafWrapper> getAircrafts() {
+        return aircrafts;
+    }
 }

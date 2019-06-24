@@ -116,4 +116,10 @@ public class Simulator extends Thread {
         aircrafts.stream().forEach(e -> e.findClosestExit());
         
     }
+
+    public SimulatorMatrix getMatrix() {
+        return matrix;
+    }
+    
+    
 }

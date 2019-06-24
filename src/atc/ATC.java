@@ -5,6 +5,7 @@
  */
 package atc;
 
+import atc.flightRadar.Radar;
 import atc.simulator.Simulator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -31,12 +32,7 @@ public class ATC extends Application {
         Scene scene = new Scene(root);
         startingStage.setScene(scene);
         startingStage.show();
-        
-        Simulator simulator = new Simulator();
-        simulator.start();
-        
-        System.out.println("testic");
-        
+        System.out.println("test");
     }
     
 }

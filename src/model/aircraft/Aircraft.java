@@ -5,6 +5,7 @@
  */
 package model.aircraft;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import model.person.Person;
@@ -14,7 +15,7 @@ import model.person.Value;
  *
  * @author cekov
  */
-public abstract class Aircraft {
+public abstract class Aircraft implements Serializable{
     
     protected String modelName;
     

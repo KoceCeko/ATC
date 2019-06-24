@@ -8,11 +8,11 @@ package atc.simulator;
 import model.aircraft.Aircraft;
 import atc.util.Field;
 import atc.util.SimulatorUtil;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.aircraft.AirHunter;
-import model.aircraft.AirTanker;
-import model.aircraft.Airplane;
+import model.aircraft.AirTanker;    
 import model.aircraft.CargoHelicopter;
 import model.aircraft.CargoPlane;
 import model.aircraft.CommercialAirplane;
@@ -24,11 +24,11 @@ import model.aircraft.PilotlessPlane;
  *
  * @author Ceko
  */
-public class AircrafWrapper extends Thread{
+public class AircrafWrapper extends Thread implements Serializable{
     
     protected Aircraft aircraft;
     
-    protected Simulator simulator;
+    protected transient  Simulator simulator;
     
     protected Field field;
     
