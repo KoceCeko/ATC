@@ -1,18 +1,13 @@
 dist/
 nbproject/
 build/
+test/
 
 #####################
 .class
 *.dll
 *.exe
-**/*.properties
-
-**/nbproject/private/
-**/nbproject/Makefile-*.mk
-**/nbproject/Package-*.bash
-build/
+build.xml
 nbbuild/
-dist/
 nbdist/
 .nb-gradle/

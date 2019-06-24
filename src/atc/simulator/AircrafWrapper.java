@@ -68,8 +68,6 @@ public class AircrafWrapper extends Thread implements Serializable{
     @Override
     public void run(){
         
-        Integer i =0;
-        
         while(!finished){
             move();
             try {

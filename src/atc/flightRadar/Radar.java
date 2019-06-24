@@ -62,7 +62,6 @@ public class Radar extends Thread{
                 Logger.getLogger(Radar.class.getName()).log(Level.SEVERE, null, ex);
             }
             
-            System.out.println("writingMatrix:");
             writeState();
         }
     }
