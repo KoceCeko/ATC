@@ -6,7 +6,11 @@
 package atc;
 
 import atc.flightRadar.Radar;
+import atc.simulator.Simulator;
+import atc.util.Alert;
+import atc.util.SimulatorUtil;
 import java.util.Scanner;
+import jdk.jshell.execution.Util;
 
 /**
  *
@@ -16,11 +20,11 @@ public class SimulatorStarter {
     
     public static void main(String []args){
                
-        atc.simulator.Simulator simulator = new atc.simulator.Simulator();
+        Simulator simulator = new Simulator();
+        Radar radar = new Radar(simulator);
         simulator.start();
-        Radar radar = new Radar(simulator.getMatrix());
         radar.start();
-        
+        new Alert(null,null).createAlertFile();
         while(true){
             if ((new Scanner(System.in).next()).equals("exit")){
                 break;

@@ -72,11 +72,13 @@ public class SimulatorMatrix {
         return map;
     }
     
-    public Field getNextField(AircrafWrapper wrapper){
+    public synchronized Field getNextField(AircrafWrapper wrapper){
         
         Integer nextX = 0;
         Integer nextY = 0;
         
+        if (wrapper == null)
+            return null;
         switch(wrapper.getDirection()){
             case NORTH:
                 nextX = wrapper.getField().getX();
@@ -96,7 +98,6 @@ public class SimulatorMatrix {
                 break;
         }
         
-        System.out.println("size: "+simulator.getConfig().size.toString());
         if ((nextX >= simulator.getConfig().size || nextX < 0 )|| (nextY >= simulator.getConfig().size || nextY < 0 ))
             return null;
         

@@ -20,6 +20,9 @@ public class SimulatorUtil {
     
     public static Random random = new Random();
     
+    public static int sizeX = 10;
+    public static int sizeY = 10;
+    
     public static Configuration readConfiguration(){
         
         try(InputStream  input = new FileInputStream("config.properties")){
@@ -30,12 +33,16 @@ public class SimulatorUtil {
             Integer creationTime = Integer.parseInt(properties.getProperty("creationTime"));
             Boolean hasForeignAircraft = Boolean.parseBoolean(properties.getProperty("hasForeignAircraft"));
             Integer numberOfMaxAC = Integer.parseInt(properties.getProperty("numberOfMaxAC"));
+            
+            sizeX = size;
+            sizeY = size;
+            
             return new Configuration(size,creationTime,hasForeignAircraft,numberOfMaxAC);
         }catch(Exception ex){
             ex.printStackTrace();
         }
-        
         return new Configuration();
     }
+    
     
 }

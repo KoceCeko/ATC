@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 
@@ -9,6 +10,14 @@
    <children>
       <Button fx:id="openListBtn" layoutX="505.0" layoutY="30.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="List" />
       <ToggleButton fx:id="toggleUnwanted" layoutX="505.0" layoutY="60.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="toggle" />
+      <Label layoutX="505.0" layoutY="93.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #00ff00;" />
+      <Label layoutX="523.0" layoutY="93.0" text="Military Aircraft" />
+      <Label layoutX="505.0" layoutY="119.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #A52A2A;" />
+      <Label layoutX="523.0" layoutY="119.0" text="Helicopter" />
+      <Label layoutX="505.0" layoutY="149.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #0000ff;" />
+      <Label layoutX="523.0" layoutY="149.0" text="Airplane" />
+      <Label layoutX="505.0" layoutY="178.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #808080;" />
+      <Label layoutX="523.0" layoutY="178.0" text="Pilotless" />
    </children>
    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

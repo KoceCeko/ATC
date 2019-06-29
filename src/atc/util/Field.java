@@ -89,4 +89,39 @@ public class Field implements Serializable{
     public HashSet<AircrafWrapper> getAircrafts() {
         return aircrafts;
     }
+    
+    public synchronized AircrafWrapper removeAircraftsOnAltitude(Integer hight){
+        for(AircrafWrapper wrapper : aircrafts){
+            if (wrapper.getAircraft().getHeight().equals(hight)){
+                AircrafWrapper ret = wrapper;
+                aircrafts.remove(ret.finish());
+                return ret;
+            }
+        }
+        return null;
+    }
+
+    public boolean isAtCorrner() {
+        if (x== 0 && y == 0)
+            return true;
+        else if(x == 0 && y == SimulatorUtil.sizeY-1)
+            return true;
+        else if (x == SimulatorUtil.sizeX -1 && y == 0)
+            return true;
+        else if (x == SimulatorUtil.sizeX -1 && y == SimulatorUtil.sizeY -1 )
+            return true;
+        return false;
+    }
+
+    public boolean nextToField(Field field, AircrafWrapper.Direction direction) {
+        if (field == null)
+            return true;
+        if (direction == AircrafWrapper.Direction.NORTH || direction == AircrafWrapper.Direction.SOUTH){
+            if (y.equals(field.getY()))
+                return true;
+        }else if (direction == AircrafWrapper.Direction.EAST || direction == AircrafWrapper.Direction.WEST)
+            if (y.equals(field.getX()))
+                return true;
+        return false;
+    }
 }

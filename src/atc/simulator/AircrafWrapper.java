@@ -9,6 +9,7 @@ import model.aircraft.Aircraft;
 import atc.util.Field;
 import atc.util.SimulatorUtil;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.aircraft.AirHunter;
@@ -32,6 +33,24 @@ public class AircrafWrapper extends Thread implements Serializable{
     
     protected Field field;
     
+    static int id = 0;
+    
+    private int wrapperId = 0;
+
+    private boolean isHunter;
+    
+    private AircrafWrapper chasedAircraft;
+    
+    AircrafWrapper(Simulator simulator, Field field,AircrafWrapper chasedAircraft) {
+        isHunter = true;
+        this.chasedAircraft = chasedAircraft;
+        this.simulator = simulator;
+        this.field = field;
+        this.direction = chasedAircraft.direction;
+        aircraft = new AirHunter();
+        finished = false;
+    }
+    
     public enum Direction{
         NORTH,
         SOUTH,
@@ -45,38 +64,46 @@ public class AircrafWrapper extends Thread implements Serializable{
     
     public AircrafWrapper(Simulator simulator){
         aircraft = generateAircraft();
+        if (aircraft == null){
+            aircraft = new CommercialAirplane();
+        }
+        
         this.simulator = simulator;
-        finished = false;
         direction = generateDirection();
-      
-
-        System.out.println("direction: "+direction.toString()+" id: "+getId());
         field = simulator.getStartingField(direction);
+        isHunter = false;
+        finished = false;
     }
     
-    AircrafWrapper(Simulator simulator, boolean hasForeignAircraft) {
+    public AircrafWrapper(Simulator simulator, boolean hasForeignAircraft) {
         if (hasForeignAircraft)
             aircraft = generateMilitaryAircraft();
         else
             aircraft = generateAircraft();
+        
         this.simulator = simulator;
-        finished = false;
         direction = generateDirection();
+        field = simulator.getStartingField(this.direction);
+        finished = false;
+        isHunter = false;
     }
         
     
     @Override
     public void run(){
-        
         while(!finished){
-            move();
+            if(isHunter)
+                chase();
+            else
+                move();
             try {
-                sleep(1250);
+                sleep(1000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(AircrafWrapper.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        System.out.println("finisehed!");
+        System.out.println("finished aircraft: "+this.getId());
+        simulator.removeAircraft(this);
     }
     
     public Aircraft getAircraft(){
@@ -91,9 +118,19 @@ public class AircrafWrapper extends Thread implements Serializable{
     public Direction getDirection() {
         return direction;
     }
-
-    
-    
+    private void chase() {
+        if (chasedAircraft.finished)
+            isHunter = false;
+        if (field.nextToField(chasedAircraft.field,direction)){
+            chasedAircraft.finished = true;
+            System.out.println("DEAD: "+chasedAircraft.field.toString()+" "+field.toString());
+            isHunter = false;
+        }
+        move();
+        
+        //todo: fix chasing
+    }
+        
     private synchronized void move() {
         if (field != null){
             field.removeAircraft(this);
@@ -101,11 +138,10 @@ public class AircrafWrapper extends Thread implements Serializable{
             if (field!=null){
                 if (field.addAircraft(this))
                     simulator.planesColided(this);
-                System.out.println("moved to: "+field.toString());
             }else
-                finished = true;
+                finish();
         }else{
-            finished = true;
+            finish();
         }
         
     }
@@ -114,7 +150,7 @@ public class AircrafWrapper extends Thread implements Serializable{
         
         Aircraft generated = null;
         
-        Integer random = SimulatorUtil.random.nextInt(5);
+        Integer random = SimulatorUtil.random.nextInt(7);
         switch(random){
             case 0:
                 generated = new CommercialAirplane();
@@ -122,23 +158,23 @@ public class AircrafWrapper extends Thread implements Serializable{
             case 1:
                 generated = new CommercialHelicopter();
                 break;
-            case 3:
+            case 2:
                 generated = new PilotlessPlane();
                 break;
-            case 4:
+            case 3:
                 generated = new AirTanker();
                 break;
-            case 5:
+            case 4:
                 generated = new CargoHelicopter();
                 break;
-            case 6:
+            case 5:
                 generated = new CargoPlane();
                 break;
-            case 7:
+            case 6:
                 generated = new FireHelicopter();
                 break;
         }
-        return  new CommercialAirplane();
+        return generated;
     }
     
     private Aircraft generateMilitaryAircraft() {
@@ -146,8 +182,9 @@ public class AircrafWrapper extends Thread implements Serializable{
     }
     
     
-    void finish() {
+    public AircrafWrapper finish() {
         finished = true;
+        return this;
     }
     
         private Direction generateDirection() {
@@ -189,5 +226,36 @@ public class AircrafWrapper extends Thread implements Serializable{
         else
             direction = Direction.WEST;
         
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 13 * hash + Objects.hashCode(this.aircraft);
+        hash = 13 * hash + Objects.hashCode(this.direction);
+        return hash;
+    }
+
+    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AircrafWrapper other = (AircrafWrapper) obj;
+        if (!Objects.equals(this.aircraft, other.aircraft)) {
+            return false;
+        }
+        if (this.direction != other.direction) {
+            return false;
+        }
+        return true;
     }
 }

@@ -8,6 +8,7 @@ package model.aircraft;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import model.person.Person;
 import model.person.Value;
 
@@ -68,5 +69,44 @@ public abstract class Aircraft implements Serializable{
     public HashSet<Person> getPersons() {
         return persons;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 71 * hash + Objects.hashCode(this.modelName);
+        hash = 71 * hash + Objects.hashCode(this.id);
+        hash = 71 * hash + Objects.hashCode(this.height);
+        hash = 71 * hash + Objects.hashCode(this.speed);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Aircraft other = (Aircraft) obj;
+        if (!Objects.equals(this.modelName, other.modelName)) {
+            return false;
+        }
+        if (!Objects.equals(this.id, other.id)) {
+            return false;
+        }
+        if (!Objects.equals(this.height, other.height)) {
+            return false;
+        }
+        if (!Objects.equals(this.speed, other.speed)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 
 }

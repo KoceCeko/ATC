@@ -31,7 +31,7 @@ public class Configuration {
         creationTime = 1;
     }
     
-    public Configuration(Integer size,Integer numberOfMaxAC, boolean hasForeignAircraft, Integer creationTime) {
+    public Configuration(Integer size,Integer  creationTime , boolean hasForeignAircraft, Integer numberOfMaxAC) {
         this.numerOfMaxAC = numberOfMaxAC;
         this.size = size;
         this.creationTime = creationTime;

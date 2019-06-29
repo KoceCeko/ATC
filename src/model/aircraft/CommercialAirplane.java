@@ -11,11 +11,12 @@ package model.aircraft;
  */
 public class CommercialAirplane extends Airplane implements Commercial{
     
-    protected Integer numberOfSeats;
+    protected Integer numberOfSeats = 50;
     
-    protected Integer maxLuggageWeight;
+    protected Integer maxLuggageWeight = 5;
 
     public CommercialAirplane() {
+        
     }
     
     
