@@ -5,11 +5,14 @@
  */
 package atc.flightRadar;
 
+import atc.ATC;
+import atc.util.ATCEvent;
 import atc.simulator.AircrafWrapper;
-import atc.simulator.Configuration;
-import atc.util.Alert;
+import atc.util.Configuration;
+import atc.util.CrashAlert;
 import atc.util.Field;
 import atc.util.SimulatorUtil;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,12 +33,18 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
@@ -45,6 +54,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import model.aircraft.Aircraft;
 import model.aircraft.Airplane;
 import model.aircraft.Helicopter;
@@ -62,14 +72,26 @@ public class FlightRadarController extends Thread implements Initializable{
     
     ObjectInputStream ois;
     
+    DirectoryWatcher watcher;
+    
     @FXML
     private AnchorPane anchorPane;
     
     @FXML
     private Button openListBtn;
+    
+    @FXML
+    private Button alertsBtn;
 
     @FXML
     private ToggleButton toggleUnwanted;
+    
+    @FXML
+    private ToggleButton toggleStop;
+    
+    private HashSet<ATCEvent> events;
+    
+    private HashSet<CrashAlert> alerts;
     
     
     @Override
@@ -77,17 +99,17 @@ public class FlightRadarController extends Thread implements Initializable{
         System.out.println("Initialized!");
         Configuration config = SimulatorUtil.readConfiguration();
         map = new GridPane();
-        oldPositions  = new HashMap<>();
-        System.out.println("config size: "+config.size.toString());
-        
+        this.oldPositions  = new HashMap<>();
+        this.events = new HashSet<>();
+        this.alerts = new HashSet<>();
         setButtonListeners();
         
-        for(int i =0;i < config.size;i++){
-            for(int j = 0; j < config.size; j++){
+        for(int i =0;i < config.sizeX;i++){
+            for(int j = 0; j < config.sizeY; j++){
                 FlowPane field = new FlowPane();
                 field.setPrefHeight(100);
                 field.setPrefWidth(100);
-                Color c = Color.rgb(255-i*2, 255 - j*2, 255);
+                Color c = Color.rgb(255, 255, 255);
                 BackgroundFill fill = new BackgroundFill(c, CornerRadii.EMPTY, Insets.EMPTY);
                 field.setBackground(new Background(fill));
                 map.add(field, i, j);
@@ -100,7 +122,9 @@ public class FlightRadarController extends Thread implements Initializable{
         
         anchorPane.getChildren().add(map);
         setDaemon(true);
-        start();
+        
+        watcher = new DirectoryWatcher(this);
+        watcher.start();
     }
     
     
@@ -129,94 +153,8 @@ public class FlightRadarController extends Thread implements Initializable{
         
         return new Background(new BackgroundFill(c, CornerRadii.EMPTY, Insets.EMPTY));
     }
-
-    @Override
-    public void run(){
-        setDirectoryListener();
-    }
     
-    private void setDirectoryListener(){
-        
-        final Path atcPath = FileSystems.getDefault().getPath("");
-        final Path alertPath = FileSystems.getDefault().getPath("alert");
-        try ( WatchService watchService = FileSystems.getDefault().newWatchService()) {
-            WatchService watchServiceAlert = FileSystems.getDefault().newWatchService();
-            WatchKey watchKey = atcPath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-            WatchKey alertsKey = alertPath.register(watchServiceAlert, StandardWatchEventKinds.ENTRY_CREATE);
-            while (true) {
-                
-                List<WatchEvent<?>> events = watchKey.pollEvents();
-                events.addAll(alertsKey.pollEvents());
-                boolean readable = false;
-                if(!events.isEmpty()){
-                    for (WatchEvent<?> event : events) {
-                        final Path changed = (Path) event.context();
-                        System.out.println("event: "+ changed.toString());
-                        if (changed.endsWith("map.txt")) {
-                            readable = true;
-                        }else if (changed.toString().contains(".alt")){
-                            System.out.println(event.kind().toString());
-                            Alert alert = deserializeAlert(changed);
-                            if (alert != null)
-                                System.out.println(alert.getDate().toString());
-                        }
-                    }
-                }
-                
-                Thread.sleep(50);
-                // reset the key
-                boolean valid = watchKey.reset();
-                valid = alertsKey.reset() || valid;
-                if(readable){
-                    HashSet<AircrafWrapper> aircrafts = deserializeMap();
-                    if (aircrafts != null)
-                        updateTable(aircrafts);
-                }
-                if (!valid) {
-                    System.out.println("Key has been unregisterede");
-                }
-            }
-        } catch(IOException ioex){
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ioex);
-        } catch (InterruptedException ex) {
-                Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private HashSet<AircrafWrapper> deserializeMap() {
-        
-        try {
-            
-            
-            Path p = Path.of("map.txt");
-            while(!Files.isReadable(p))
-            {
-                System.out.println("ITS NOT READABLE");
-                try {
-                    sleep(50);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            FileInputStream fis = new FileInputStream(p.toFile());
-            ois = new ObjectInputStream(fis);
-            aircrafts = (HashSet<AircrafWrapper>) ois.readUnshared();
-            //todo: fix syncronious reading/writing
-            return aircrafts;
-            
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
-        }catch (Exception ex){
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    return null;
-    }
-
-    private void updateTable(HashSet<AircrafWrapper> aircrafts) {
+    public void updateMap(HashSet<AircrafWrapper> aircrafts) {
         for(AircrafWrapper wrapper : aircrafts){
             
             
@@ -235,14 +173,15 @@ public class FlightRadarController extends Thread implements Initializable{
             ((FlowPane)getNodeFromGridPane(map, x, y)).setBackground(getBackgroundFromAircraft(wrapper));
         }
         for(AircrafWrapper onMap : oldPositions.keySet()){
+            
             if(!aircrafts.contains(onMap)){
-                setOldColor(oldPositions.get(onMap));
+                    setOldColor(oldPositions.get(onMap));
             }
         }
     }
 
     private void setOldColor(Field position) {
-        ((FlowPane)getNodeFromGridPane(map, position.getX(), position.getY())).setBackground(getBackgroundColor(position));
+        ((FlowPane)getNodeFromGridPane(map, position.getX(), position.getY())).setBackground(new Background(new BackgroundFill(Color.rgb(255, 255, 255), CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     private Background getBackgroundColor(Field position) {
@@ -255,7 +194,36 @@ public class FlightRadarController extends Thread implements Initializable{
         openListBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent arg0) {
-                System.out.println("BUTTON PRESSED");
+                try {
+                    FXMLLoader loader = new FXMLLoader();
+                    loader.setController(new ListEvenetsController(events));
+                    FileInputStream fis = new FileInputStream(new File("src\\atc\\flightRadar\\listEvents.fxml"));
+                    Parent parent = loader.load(fis);
+                    Scene scene = new Scene(parent);
+                    Stage stage = new Stage();
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (Exception ex) {
+                    Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);  
+                }
+            }
+        });
+        
+        alertsBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {                
+                try {
+                    FXMLLoader loader = new FXMLLoader();
+                    loader.setController(new ListAlertsController(alerts));
+                    FileInputStream fis = new FileInputStream(new File("src\\atc\\flightRadar\\listAlerts.fxml"));
+                    Parent parent = loader.load(fis);
+                    Scene scene = new Scene(parent);
+                    Stage stage = new Stage();
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (Exception ex) {
+                    Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);  
+                }
             }
         });
         
@@ -283,20 +251,43 @@ public class FlightRadarController extends Thread implements Initializable{
             }
         });
         
+        toggleStop.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent arg0) {
+                  
+                Properties prop = new Properties();
+                System.out.println("stoped: " + toggleStop.selectedProperty().get());
+                try {
+                    prop.load(new FileInputStream("config.properties"));
+                    if (toggleStop.selectedProperty().get())
+                        prop.setProperty("stoped", "true");
+                    else
+                        prop.setProperty("stoped", "false");
+                    prop.store(new FileOutputStream("config.properties"), null);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch(Exception ex){
+                    Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+        
     }
 
-    private Alert deserializeAlert(Path changed) {
-        try {
-            return (Alert) (new ObjectInputStream(new FileInputStream(changed.toFile()))).readObject();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.FINE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.FINE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.FINE, null, ex);
-        }catch (Exception ex){
-            Logger.getLogger(FlightRadarController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
+    void alert(CrashAlert alert) {
+        alerts.add(alert);
+        Platform.runLater(() ->{
+            Alert a = new Alert(AlertType.WARNING);
+            a.setTitle("Crash report");
+            a.setHeaderText("A Crash ocured!");
+            a.setContentText("position: "+alert.getField().toString()+" ::::: participants: "+alert.getFirst().getId()+" , "+alert.getSecound().getId());
+            a.showAndWait();
+        });
+    }
+
+    void addEvent(ATCEvent atce) {
+        events.add(atce);
     }
 }

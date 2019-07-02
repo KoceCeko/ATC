@@ -5,13 +5,17 @@
  */
 package atc.simulator;
 
-import atc.util.Alert;
+import atc.util.Configuration;
+import atc.util.ATCEvent;
+import atc.util.CompressFiles;
+import atc.util.CrashAlert;
 import atc.util.Field;
 import atc.util.SimulatorMatrix;
 import atc.util.SimulatorUtil;
 import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.aircraft.MilitaryAircraft;
 
 /**
  *
@@ -29,7 +33,7 @@ public class Simulator extends Thread {
     public Simulator(){
         config = SimulatorUtil.readConfiguration();
         aircrafts = new HashSet<>();
-        matrix = new SimulatorMatrix(config.size,config.size,this);
+        matrix = new SimulatorMatrix(config.sizeX,config.sizeY,this);
         System.out.println("created simulation");
         setDaemon(true);
     }
@@ -41,40 +45,39 @@ public class Simulator extends Thread {
         boolean alreadyEntered = false;
         while(true){
             config = SimulatorUtil.readConfiguration();
-            if(config.hasForeignAircraft && !alreadyEntered){
+            
+            if(config.hasForeignAircraft && !config.stoped){
+                if (!alreadyEntered){
+                    changeCourseOfFlights();
+                    alreadyEntered = true;
+                }
                 AircrafWrapper aircraft = new AircrafWrapper(this,config.hasForeignAircraft);
-                System.out.println("starting foreign aircraft entered!" + aircraft.direction.toString());
                 aircrafts.add(aircraft);
                 aircraft.start();
+                ATCEvent atce = new ATCEvent(aircraft);
+                atce.writeToFile();
                 try {
-                    sleep(4000);
+                    sleep(2000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Simulator.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.out.println("adding hunters");
                 if (aircraft.field.isAtCorrner()){
                     addOneHunter(aircraft);
                 }else{
                     addTwoHunters(aircraft);
                 }
-                alreadyEntered = true;
-            }else if (!config.hasForeignAircraft){
-                alreadyEntered = false;
+            }else if (!config.hasForeignAircraft && (!config.stoped)){
                 if (i++ < config.numerOfMaxAC){
-                    AircrafWrapper aircraft = new AircrafWrapper(this);
-                    aircrafts.add(aircraft);
-                    aircraft.start();
+                    createAircraft();
                 }else if (config.numerOfMaxAC == 0){
-                    AircrafWrapper aircraft = new AircrafWrapper(this);
-                    aircrafts.add(aircraft);
-                    aircraft.start();
+                    createAircraft();
                 }
-                
-                try{
-                    Thread.sleep(config.creationTime*1000);
-                }catch(InterruptedException ex){
-                    System.out.println("simulator sleeps");
-                }
+                alreadyEntered = false;
+            }
+            try{
+                Thread.sleep(config.creationTime*1000);
+            }catch(InterruptedException ex){
+                Logger.getLogger(CompressFiles.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -94,20 +97,20 @@ public class Simulator extends Thread {
         Integer y = 0;
         switch(direction){
             case NORTH:
-                x = SimulatorUtil.random.nextInt(config.size);
+                x = SimulatorUtil.random.nextInt(config.sizeX);
                 y = 0;
                 break;
             case SOUTH:
-                x = SimulatorUtil.random.nextInt(config.size);
-                y = config.size - 1;
+                x = SimulatorUtil.random.nextInt(config.sizeX);
+                y = config.sizeY - 1;
                 break;
             case EAST:
                 x = 0;
-                y = SimulatorUtil.random.nextInt(config.size);
+                y = SimulatorUtil.random.nextInt(config.sizeY);
                 break;
             case WEST:
-                x = config.size - 1;
-                y = SimulatorUtil.random.nextInt(config.size);
+                x = config.sizeX - 1;
+                y = SimulatorUtil.random.nextInt(config.sizeY);
                 break;
         }
         Integer x1 = x;
@@ -121,16 +124,20 @@ public class Simulator extends Thread {
         aircrafts.remove(aircraft);
         AircrafWrapper colider = aircraft.field.removeAircraftsOnAltitude(aircraft.getAircraft().getHeight());
         aircrafts.remove(colider);
-        System.out.println("colided at: "+aircraft.getField().toString()+" planes: "+colider.getId()+" , "+aircraft.getId());
-        new Alert(aircraft,colider).createAlertFile();
+        new CrashAlert(aircraft,colider).createAlertFile();
     }
 
     public Configuration getConfig() {
+        if (config == null)
+            return new Configuration();
         return config;
     }
 
     private void changeCourseOfFlights() {
-        aircrafts.stream().forEach(e -> e.findClosestExit());
+        aircrafts.stream().forEach(e -> {
+            if (!(e.getAircraft() instanceof MilitaryAircraft))
+                e.findClosestExit();
+                });
     }
 
     public SimulatorMatrix getMatrix() {
@@ -150,18 +157,18 @@ public class Simulator extends Thread {
             generateHunter(new Field(1,0),aircraft);
         else if (aircraft.direction == AircrafWrapper.Direction.EAST && aircraft.field.getX() == 0)
             generateHunter(new Field(0,1),aircraft);
-        else if (aircraft.direction == AircrafWrapper.Direction.SOUTH && aircraft.field.getX() == config.size - 1)
-            generateHunter(new Field(config.size - 1,1),aircraft);
-        else if (aircraft.direction == AircrafWrapper.Direction.EAST && aircraft.field.getX() == config.size - 1)
-            generateHunter(new Field(config.size - 2,0),aircraft);
+        else if (aircraft.direction == AircrafWrapper.Direction.SOUTH && aircraft.field.getX() == config.sizeX - 1)
+            generateHunter(new Field(config.sizeX - 1,1),aircraft);
+        else if (aircraft.direction == AircrafWrapper.Direction.EAST && aircraft.field.getX() == config.sizeX - 1)
+            generateHunter(new Field(config.sizeX - 2,0),aircraft);
         else if (aircraft.direction == AircrafWrapper.Direction.WEST && aircraft.field.getY() == 0)
-            generateHunter(new Field(1,config.size - 1),aircraft);
+            generateHunter(new Field(1,config.sizeY - 1),aircraft);
         else if (aircraft.direction == AircrafWrapper.Direction.NORTH && aircraft.field.getY() == 0)
-            generateHunter(new Field(0,config.size - 2),aircraft);
-        else if (aircraft.direction == AircrafWrapper.Direction.WEST && aircraft.field.getY() == config.size - 1)
-            generateHunter(new Field(config.size - 1,config.size - 2),aircraft);
-        else if (aircraft.direction == AircrafWrapper.Direction.SOUTH && aircraft.field.getY() == config.size - 1)
-            generateHunter(new Field(config.size - 2,config.size - 1),aircraft);
+            generateHunter(new Field(0,config.sizeY - 2),aircraft);
+        else if (aircraft.direction == AircrafWrapper.Direction.WEST && aircraft.field.getY() == config.sizeY - 1)
+            generateHunter(new Field(config.sizeX - 1,config.sizeY - 2),aircraft);
+        else if (aircraft.direction == AircrafWrapper.Direction.SOUTH && aircraft.field.getY() == config.sizeY - 1)
+            generateHunter(new Field(config.sizeX - 2,config.sizeY - 1),aircraft);
         
         
     }
@@ -173,16 +180,16 @@ public class Simulator extends Thread {
                 generateHunter(new Field(aircraft.field.getX()+1,0),aircraft);
                 break;
             case SOUTH:
-                generateHunter(new Field(aircraft.field.getX()-1,config.size - 1),aircraft);
-                generateHunter(new Field(aircraft.field.getX()+1,config.size - 1),aircraft);
+                generateHunter(new Field(aircraft.field.getX()-1,config.sizeY - 1),aircraft);
+                generateHunter(new Field(aircraft.field.getX()+1,config.sizeY - 1),aircraft);
                 break;
             case EAST:
                 generateHunter(new Field(0,aircraft.field.getY() - 1),aircraft);
                 generateHunter(new Field(0,aircraft.field.getY() + 1),aircraft);
                 break;
             case WEST:
-                generateHunter(new Field(config.size - 1,aircraft.field.getY() - 1),aircraft);
-                generateHunter(new Field(config.size - 1,aircraft.field.getY() + 1),aircraft);
+                generateHunter(new Field(config.sizeX - 1,aircraft.field.getY() - 1),aircraft);
+                generateHunter(new Field(config.sizeX - 1,aircraft.field.getY() + 1),aircraft);
                 break;
             default:
                 break;
@@ -191,17 +198,28 @@ public class Simulator extends Thread {
 
     private void generateHunter(Field field,AircrafWrapper aircraft) {
         AircrafWrapper wrapper = new AircrafWrapper(this,field,aircraft);
-        System.out.println("starting hunter: "+wrapper.getId() + " " + wrapper.direction.toString());
         wrapper.start();
-        aircrafts.add(wrapper);
+        synchronized (Simulator.class){
+            aircrafts.add(wrapper);
+        }
+    }
+     private void createAircraft() {
+        AircrafWrapper aircraft = new AircrafWrapper(this);
+        aircrafts.add(aircraft);
+        aircraft.start();
     }
     
-    
-    //TODO: FIX REDIRECTION
-    //TODO: ADD CRASH REPORT (ALERT OBJECT)
-    //TODO: READ CRASH REPORT AND ALERT
-    //TODO: CREATE EVENT LIST SCENE
-    //TODO: CREATE EVENT WATCHER
-    //TODO: CREATE CRASH WATCHER
+    //TODO: M-L FIX REDIRECTION                   -check
+    //TODO: H ADD CRASH REPORT (ALERT OBJECT)     -check
+    //TODO: H READ CRASH REPORT AND ALERT         -check
+    //TODO: M ADD X, Y SIZE TO PROPERTIES         -check
+    //TODO: H CREATE EVENT LIST SCENE             -check
+    //TODO: H CREATE EVENT WATCHER                -check
+    //TODO: H CREATE BUTTON FOR ALERT LIST        -check
+    //TODO: L ADD unnecessary METHODES IN MODEL
+    //TODO: H ZIP FILES                           -check
+    //TODO: M ADD RANDOMNES (HIGHT AND SPEED)     -check
+
+   
     
 }

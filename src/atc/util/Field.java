@@ -80,10 +80,12 @@ public class Field implements Serializable{
     }
 
     public boolean addAircraft(AircrafWrapper newAircraft) {
-        if (aircrafts.stream().anyMatch(e -> e.getAircraft().getHeight().equals(newAircraft.getAircraft().getHeight())))
+        if (aircrafts.stream().anyMatch(e -> e.getAircraft().getHeight().equals(newAircraft.getAircraft().getHeight()) && !e.equals(newAircraft)))
             return true;
+        
         aircrafts.add(newAircraft);
         return false;
+        
     }
 
     public HashSet<AircrafWrapper> getAircrafts() {
@@ -114,6 +116,7 @@ public class Field implements Serializable{
     }
 
     public boolean nextToField(Field field, AircrafWrapper.Direction direction) {
+        synchronized(AircrafWrapper.class){
         if (field == null)
             return true;
         if (direction == AircrafWrapper.Direction.NORTH || direction == AircrafWrapper.Direction.SOUTH){
@@ -123,5 +126,6 @@ public class Field implements Serializable{
             if (y.equals(field.getX()))
                 return true;
         return false;
+        }
     }
 }

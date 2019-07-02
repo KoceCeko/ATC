@@ -98,7 +98,7 @@ public class SimulatorMatrix {
                 break;
         }
         
-        if ((nextX >= simulator.getConfig().size || nextX < 0 )|| (nextY >= simulator.getConfig().size || nextY < 0 ))
+        if ((nextX >= simulator.getConfig().sizeX || nextX < 0 )|| (nextY >= simulator.getConfig().sizeY || nextY < 0 ))
             return null;
         
         Field nextPosition = new Field(nextX, nextY);

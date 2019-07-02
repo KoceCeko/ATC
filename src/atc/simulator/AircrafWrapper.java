@@ -27,21 +27,17 @@ import model.aircraft.PilotlessPlane;
  */
 public class AircrafWrapper extends Thread implements Serializable{
     
-    protected Aircraft aircraft;
+    private Aircraft aircraft;
     
     protected transient  Simulator simulator;
     
     protected Field field;
-    
-    static int id = 0;
-    
-    private int wrapperId = 0;
 
-    private boolean isHunter;
+    private transient boolean isHunter;
     
-    private AircrafWrapper chasedAircraft;
+    private transient AircrafWrapper chasedAircraft;
     
-    AircrafWrapper(Simulator simulator, Field field,AircrafWrapper chasedAircraft) {
+    public AircrafWrapper(Simulator simulator, Field field,AircrafWrapper chasedAircraft) {
         isHunter = true;
         this.chasedAircraft = chasedAircraft;
         this.simulator = simulator;
@@ -49,6 +45,11 @@ public class AircrafWrapper extends Thread implements Serializable{
         this.direction = chasedAircraft.direction;
         aircraft = new AirHunter();
         finished = false;
+    }
+
+    private void addRandomValues(Aircraft generated) {
+        generated.setHeight(SimulatorUtil.getRandomHight());
+        generated.setSpeed(SimulatorUtil.getRandomSpeed());
     }
     
     public enum Direction{
@@ -63,12 +64,12 @@ public class AircrafWrapper extends Thread implements Serializable{
     protected boolean finished;
     
     public AircrafWrapper(Simulator simulator){
+        this.simulator = simulator;
         aircraft = generateAircraft();
         if (aircraft == null){
             aircraft = new CommercialAirplane();
         }
         
-        this.simulator = simulator;
         direction = generateDirection();
         field = simulator.getStartingField(direction);
         isHunter = false;
@@ -76,12 +77,12 @@ public class AircrafWrapper extends Thread implements Serializable{
     }
     
     public AircrafWrapper(Simulator simulator, boolean hasForeignAircraft) {
+        this.simulator = simulator;
         if (hasForeignAircraft)
             aircraft = generateMilitaryAircraft();
         else
             aircraft = generateAircraft();
         
-        this.simulator = simulator;
         direction = generateDirection();
         field = simulator.getStartingField(this.direction);
         finished = false;
@@ -118,9 +119,13 @@ public class AircrafWrapper extends Thread implements Serializable{
     public Direction getDirection() {
         return direction;
     }
-    private void chase() {
-        if (chasedAircraft.finished)
+    private synchronized void chase() {
+        if (chasedAircraft.finished || chasedAircraft == null){
             isHunter = false;
+            move();
+            return;
+        }
+        
         if (field.nextToField(chasedAircraft.field,direction)){
             chasedAircraft.finished = true;
             System.out.println("DEAD: "+chasedAircraft.field.toString()+" "+field.toString());
@@ -174,6 +179,9 @@ public class AircrafWrapper extends Thread implements Serializable{
                 generated = new FireHelicopter();
                 break;
         }
+        
+        if(simulator.getConfig().random)
+            addRandomValues(generated);
         return generated;
     }
     
@@ -208,20 +216,20 @@ public class AircrafWrapper extends Thread implements Serializable{
     }
         
     void findClosestExit() {
-        
-        if(field == null)
+        if(field == null){
             return;
+        }
         
-        Integer toNorth = simulator.getConfig().size - field.getY();
-        Integer toSouth = simulator.getConfig().size - field.getY();
-        Integer toEast = simulator.getConfig().size - field.getY();
-        Integer toWest = simulator.getConfig().size - field.getY();
+        Integer toNorth = simulator.getConfig().sizeY - field.getY();
+        Integer toSouth = field.getY();
+        Integer toEast = simulator.getConfig().sizeX - field.getX();
+        Integer toWest = field.getY();
         
-        if((toNorth >= toSouth) && (toNorth >= toEast) && (toNorth >= toWest))
+        if((toNorth <= toSouth) && (toNorth <= toEast) && (toNorth <= toWest))
             direction = Direction.NORTH;
-        else if((toSouth > toNorth) && (toSouth >= toEast) && (toSouth >= toWest))
+        else if((toSouth < toNorth) && (toSouth <= toEast) && (toSouth <= toWest))
             direction = Direction.SOUTH;
-        else if((toEast > toNorth) && (toEast > toSouth) && (toEast >= toWest))
+        else if((toEast < toNorth) && (toEast < toSouth) && (toEast < toWest))
             direction = Direction.EAST;
         else
             direction = Direction.WEST;

@@ -5,8 +5,6 @@
  */
 package atc;
 
-import atc.flightRadar.Radar;
-import atc.simulator.Simulator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

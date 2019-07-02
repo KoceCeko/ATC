@@ -8,16 +8,18 @@
 
 <AnchorPane id="AnchorPane" fx:id="anchorPane" prefHeight="500.0" prefWidth="610.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="atc.flightRadar.FlightRadarController">
    <children>
-      <Button fx:id="openListBtn" layoutX="505.0" layoutY="30.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="List" />
-      <ToggleButton fx:id="toggleUnwanted" layoutX="505.0" layoutY="60.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="toggle" />
-      <Label layoutX="505.0" layoutY="93.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #00ff00;" />
-      <Label layoutX="523.0" layoutY="93.0" text="Military Aircraft" />
-      <Label layoutX="505.0" layoutY="119.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #A52A2A;" />
-      <Label layoutX="523.0" layoutY="119.0" text="Helicopter" />
-      <Label layoutX="505.0" layoutY="149.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #0000ff;" />
-      <Label layoutX="523.0" layoutY="149.0" text="Airplane" />
-      <Label layoutX="505.0" layoutY="178.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #808080;" />
-      <Label layoutX="523.0" layoutY="178.0" text="Pilotless" />
+      <Button fx:id="openListBtn" layoutX="501.0" layoutY="47.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Events" />
+      <ToggleButton fx:id="toggleUnwanted" layoutX="501.0" layoutY="82.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Foreign" />
+      <Label layoutX="501.0" layoutY="160.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #00ff00;" />
+      <Label layoutX="519.0" layoutY="160.0" text="Military Aircraft" />
+      <Label layoutX="501.0" layoutY="186.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #A52A2A;" />
+      <Label layoutX="519.0" layoutY="186.0" text="Helicopter" />
+      <Label layoutX="501.0" layoutY="216.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #0000ff;" />
+      <Label layoutX="519.0" layoutY="216.0" text="Airplane" />
+      <Label layoutX="501.0" layoutY="245.0" prefHeight="10.0" prefWidth="10.0" style="-fx-background-color: #808080;" />
+      <Label layoutX="519.0" layoutY="245.0" text="Pilotless" />
+      <Button fx:id="alertsBtn" layoutX="501.0" layoutY="14.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Alerts" />
+      <ToggleButton fx:id="toggleStop" layoutX="501.0" layoutY="115.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="100.0" text="Forbidden" />
    </children>
    <padding>
       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

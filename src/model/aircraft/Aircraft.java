@@ -18,7 +18,7 @@ import model.person.Value;
  */
 public abstract class Aircraft implements Serializable{
     
-    protected String modelName;
+    protected transient String modelName;
     
     public Integer id;
     
@@ -26,11 +26,11 @@ public abstract class Aircraft implements Serializable{
     
     protected Integer height;
     
-    protected Integer speed;
+    protected transient Integer speed;
     
-    protected HashMap<Integer,Value> characteristic;
+    protected transient HashMap<Integer,Value> characteristic;
     
-    protected HashSet<Person> persons;
+    protected transient HashSet<Person> persons;
 
     public Aircraft() {
         id = numOfAC++;
@@ -70,6 +70,22 @@ public abstract class Aircraft implements Serializable{
         return persons;
     }
 
+    public void setHeight(Integer height) {
+        this.height = height;
+    }
+
+    public void setSpeed(Integer speed) {
+        this.speed = speed;
+    }
+    
+    
+
+    public void setPersons(HashSet<Person> persons) {
+        this.persons = persons;
+    }
+
+    
+    
     @Override
     public int hashCode() {
         int hash = 3;
