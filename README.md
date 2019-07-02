@@ -1,9 +1,12 @@
 # ATC
 
-## small java study project
+## Small java study project
 
-### initial product
+### This project isn't intended for use and does't have any real purpose besides studying java
 
-#####This project show a simulation of air trafic, with a GUI radar (JavaFX)
 
-## author: Vladimir Ceko
+## Desription
+
+This project show a simulation of air trafic, with a GUI radar (JavaFX)
+
+## Author: Vladimir Ceko
